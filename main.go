@@ -3,47 +3,48 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
-	"sync"
+	"os"
+	"runtime"
+	"time"
 )
 
 func main() {
 
 	r := gin.Default()
 
-	// Ping test
-	r.GET("/ping", func(c *gin.Context) {
+	r.GET("/", func(c *gin.Context) {
 		memoryLeaking()
-		c.String(http.StatusOK, "pong")
+		c.String(http.StatusOK, "ok")
 	})
 
 	// Listen and Server in 0.0.0.0:8080
-	r.Run(":8080")
+	err := r.Run(":8080")
+	if err != nil {
+		log.Fatal("failed to start webapp")
+	}
 }
 
 func memoryLeaking() {
-	var wg sync.WaitGroup
-	for {
-		// spawn four worker goroutines
-		spawnWorkers(4, wg)
-		// wait for the workers to finish
-		wg.Wait()
+	f, err := os.Open(os.DevNull)
+	if err != nil {
+		panic(err)
 	}
-}
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
 
-func spawnWorkers(max int, wg sync.WaitGroup) {
-	for n := 0; n < max; n++ {
-		wg.Add(1)
+	n := runtime.NumCPU()
+	runtime.GOMAXPROCS(n)
+
+	for i := 0; i < n; i++ {
 		go func() {
-			defer wg.Done()
-			f(n)
-			return
+			for {
+				_, _ = fmt.Fprintf(f, ".")
+			}
 		}()
 	}
-}
 
-func f(n int) {
-	for i := 0; i < 1000; i++ {
-		fmt.Println(n, ":", i)
-	}
+	time.Sleep(10 * time.Second)
 }
