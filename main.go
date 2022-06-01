@@ -15,7 +15,7 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
-		memoryLeaking()
+		leakyEndpoint()
 		c.String(http.StatusOK, "ok")
 	})
 
@@ -26,7 +26,7 @@ func main() {
 	}
 }
 
-func memoryLeaking() {
+func leakyEndpoint() {
 	f, err := os.Open(os.DevNull)
 	if err != nil {
 		panic(err)
@@ -47,7 +47,7 @@ func memoryLeaking() {
 
 	for i := 0; i < chosen; i++ {
 		go func() {
-			leakyMemory()
+			leakMemory()
 			for {
 				_, _ = fmt.Fprintf(f, ".")
 			}
@@ -55,7 +55,7 @@ func memoryLeaking() {
 	}
 }
 
-func leakyMemory() {
+func leakMemory() {
 	type T struct {
 		v [1 << 20]int
 		t *T
