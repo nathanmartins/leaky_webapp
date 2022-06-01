@@ -37,8 +37,14 @@ func memoryLeaking() {
 	}(f)
 
 	max := runtime.NumCPU()
+
+	if max == 1 {
+		max = 2
+	}
+	log.Printf("max: %d\n", max)
 	chosen := rand.Intn(max-1) + 1
 	runtime.GOMAXPROCS(chosen)
+	log.Printf("chosen: %d\n", chosen)
 
 	for i := 0; i < chosen; i++ {
 		go func() {
@@ -48,5 +54,5 @@ func memoryLeaking() {
 		}()
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(30 * time.Second)
 }
