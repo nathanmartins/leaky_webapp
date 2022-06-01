@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"runtime"
@@ -35,10 +36,11 @@ func memoryLeaking() {
 		_ = f.Close()
 	}(f)
 
-	n := runtime.NumCPU()
-	runtime.GOMAXPROCS(n)
+	max := runtime.NumCPU()
+	chosen := rand.Intn(max-1) + 1
+	runtime.GOMAXPROCS(chosen)
 
-	for i := 0; i < n; i++ {
+	for i := 0; i < chosen; i++ {
 		go func() {
 			for {
 				_, _ = fmt.Fprintf(f, ".")
