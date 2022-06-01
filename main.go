@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"time"
 )
 
 func main() {
@@ -53,6 +52,4 @@ func memoryLeaking() {
 			}
 		}()
 	}
-
-	time.Sleep(30 * time.Second)
 }
